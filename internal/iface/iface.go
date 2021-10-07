@@ -10,7 +10,7 @@ import (
 
 // as per http://lxr.free-electrons.com/source/include/uapi/linux/route.h#L30
 type rtentry struct {
-	pad1    uint64
+	pad1    uint
 	dst     syscall.RawSockaddrInet4
 	gateway syscall.RawSockaddrInet4
 	genmask syscall.RawSockaddrInet4
