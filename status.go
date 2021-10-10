@@ -341,7 +341,7 @@ func initStatus(services []*service) {
 			Kernel         string
 		}{
 			Services:       services,
-			PermDev:        rootdev.Partition(rootdev.Perm),
+			PermDev:        permPartition(),
 			PermUsed:       int64(st.Bsize) * int64(st.Blocks-st.Bfree),
 			PermAvail:      int64(st.Bsize) * int64(st.Bavail),
 			PermTotal:      int64(st.Bsize) * int64(st.Blocks),

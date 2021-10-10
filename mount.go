@@ -6,8 +6,7 @@ import (
 	"log"
 	"os"
 	"syscall"
-
-	"github.com/gokrazy/internal/rootdev"
+	"time"
 )
 
 // mountCompat deals with old FAT root file systems, to cover the case where
@@ -94,7 +93,27 @@ func mountfs() error {
 		}
 	}
 
-	dev := rootdev.Partition(rootdev.Perm)
+	dev := permPartition()
+
+	startTime := time.Now()
+
+	// Wait for perm device to be present - required if its not the same as the boot device.
+	for {
+		_, err := os.Stat(dev)
+		if err == nil {
+			break
+		}
+		// TODO: May be a better idea to count number of sleep operations instead, to avoid NTP
+		// clock update messing with this timeout (assuming NTP client starts running before
+		// this function exits).
+		if time.Since(startTime) > 15*time.Second {
+			log.Printf("giving up waiting for perm device: %v", err)
+			return nil
+		}
+
+		time.Sleep(time.Second)
+	}
+
 	for _, fstype := range []string{"ext4", "vfat"} {
 		if err := syscall.Mount(dev, "/perm", fstype, 0, ""); err != nil {
 			log.Printf("Could not mount permanent storage partition %s as %s: %v", dev, fstype, err)
